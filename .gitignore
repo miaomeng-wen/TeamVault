@@ -1,0 +1,20 @@
+# Obsidian 本机工作区状态与缓存（配置类文件仍入库，保证团队一致）
+.obsidian/workspace.json
+.obsidian/workspace-mobile.json
+.obsidian/cache/
+.obsidian/plugins/*/data.json
+
+# 密钥与本机配置（从 config/.env.example 复制填写，永不入库）
+config/.env
+.env
+
+# 智能体本机会话数据
+.claudian/
+.zcode/
+.trash/
+
+# 系统垃圾文件
+Thumbs.db
+desktop.ini
+.DS_Store
+~$*
