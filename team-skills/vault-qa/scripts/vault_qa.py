@@ -4,12 +4,13 @@
 
 扫描 02_Literature 下全部 .md 笔记，检查：
   1. 文件命名符合 作者_年份_短标题（00_ 开头的索引页自动跳过）
-  2. frontmatter 必填字段非空：title / item_key / authors / year / reading_status
+  2. frontmatter 必填字段非空
   3. reading_status / screening_status 取值合法
   4. year 为 4 位数字
-  5. item_key 格式合法（8 位字母数字）且全库唯一
-  6. zotero / pdf 跳转链接存在（缺则 WARN）
-  7. assignee 已填（缺则 WARN，提示待认领）
+  5. source_id 格式合法且全库唯一
+  6. source_type / theme 合法，theme 与所在目录一致
+  7. source_url / pdf_url 至少有一个可用链接
+  8. finished 笔记至少有一条页码证据
 
 定位 vault：--vault 参数 > 环境变量 RESEARCH_VAULT > 脚本所在仓库根（本脚本位于
 <vault>/team-skills/vault-qa/scripts/，自动向上取 parents[3]）。
@@ -27,11 +28,24 @@ import sys
 from collections import defaultdict
 from pathlib import Path
 
-REQUIRED = ["title", "item_key", "authors", "year", "reading_status"]
+REQUIRED = [
+    "title", "source_id", "source_type", "authors", "year", "theme",
+    "reading_status", "screening_status", "created",
+]
 READING_OK = {"unread", "reading", "finished", "excluded"}
 SCREENING_OK = {"included", "candidate", "excluded"}
+SOURCE_TYPE_OK = {"article", "conference", "book", "chapter", "report", "dataset", "web", "thesis", "other"}
+THEME_OK = {
+    "01_综述论文", "02_数据集与基准", "03_检测方法",
+    "04_泛化与鲁棒性", "05_评价协议与可复现性",
+}
 NAME_RE = re.compile(r"^(?P<author>[^_\s][^_]*)_(?P<year>\d{4})_(?P<slug>.+)$")
-KEY_RE = re.compile(r"^[A-Z0-9]{8}$")
+SOURCE_ID_RE = re.compile(r"^(doi|url|manual):\S+$")
+HTTP_RE = re.compile(r"^https?://", re.I)
+EVIDENCE_ROW_RE = re.compile(
+    r"^\|\s*[^|\s][^|]*\|\s*(?:第\s*)?\d+\s*页?\s*\|\s*[^|\s][^|]*\|",
+    re.M,
+)
 
 
 def out_utf8() -> None:
@@ -82,7 +96,8 @@ def check_note(md: Path):
         return [("ERR", f"无法读取：{e}")], {}
     fm, _ = parse_frontmatter(text)
 
-    if not NAME_RE.match(md.stem):
+    name_match = NAME_RE.match(md.stem)
+    if not name_match:
         issues.append(("ERR", "文件名不符合 作者_年份_短标题"))
     for f in REQUIRED:
         v = fm.get(f)
@@ -94,18 +109,35 @@ def check_note(md: Path):
     ss = fm.get("screening_status")
     if ss and ss not in SCREENING_OK:
         issues.append(("ERR", f"screening_status 非法：{ss}"))
+    st = fm.get("source_type")
+    if st and st not in SOURCE_TYPE_OK:
+        issues.append(("ERR", f"source_type 非法：{st}"))
+    theme = fm.get("theme")
+    if theme and theme not in THEME_OK:
+        issues.append(("ERR", f"theme 非法：{theme}"))
+    if theme in THEME_OK and md.parent.name != theme:
+        issues.append(("ERR", f"theme 与所在目录不一致：{theme} != {md.parent.name}"))
     y = fm.get("year")
     if y and not re.fullmatch(r"\d{4}", str(y)):
         issues.append(("ERR", f"year 应为 4 位数字：{y}"))
-    ik = fm.get("item_key")
-    if ik and not KEY_RE.match(str(ik)):
-        issues.append(("ERR", f"item_key 应为 8 位字母数字：{ik}"))
-    for link in ("zotero", "pdf"):
-        v = fm.get(link)
-        if v is None or (isinstance(v, str) and not v.strip()):
-            issues.append(("WARN", f"缺少 {link} 跳转链接"))
+    if name_match and y and name_match.group("year") != str(y):
+        issues.append(("ERR", f"文件名年份与 frontmatter 不一致：{name_match.group('year')} != {y}"))
+    sid = fm.get("source_id")
+    if sid and not SOURCE_ID_RE.match(str(sid)):
+        issues.append(("ERR", f"source_id 格式应为 doi: / url: / manual: 前缀：{sid}"))
+    if sid and str(sid).startswith("doi:") and str(sid)[4:] != str(sid)[4:].lower():
+        issues.append(("ERR", f"DOI 型 source_id 应使用小写：{sid}"))
+    links = [fm.get("source_url"), fm.get("pdf_url")]
+    if not any(isinstance(v, str) and v.strip() for v in links):
+        issues.append(("WARN", "source_url / pdf_url 均为空"))
+    for field in ("source_url", "pdf_url"):
+        value = fm.get(field)
+        if isinstance(value, str) and value.strip() and not HTTP_RE.match(value):
+            issues.append(("WARN", f"{field} 不是 HTTP(S) 稳定链接：{value}"))
     if not fm.get("assignee"):
         issues.append(("WARN", "未填 assignee（待认领）"))
+    if rs == "finished" and not EVIDENCE_ROW_RE.search(text):
+        issues.append(("ERR", "finished 笔记缺少带页码的证据表行"))
     return issues, fm
 
 
@@ -122,7 +154,7 @@ def main(argv=None) -> int:
         print(f"[ERR] 未找到文献目录：{lit}")
         return 2
 
-    key_map = defaultdict(list)
+    source_id_map = defaultdict(list)
     all_issues = []
     n_checked = 0
     for md in sorted(lit.rglob("*.md")):
@@ -130,16 +162,16 @@ def main(argv=None) -> int:
         if md.stem.startswith("00_"):
             continue
         n_checked += 1
-        ik = fm.get("item_key")
-        if ik:
-            key_map[str(ik)].append(md)
+        sid = fm.get("source_id")
+        if sid:
+            source_id_map[str(sid)].append(md)
         for lv, msg in issues:
             all_issues.append((lv, md.relative_to(vault), msg))
 
-    for k, paths in sorted(key_map.items()):
+    for source_id, paths in sorted(source_id_map.items()):
         if len(paths) > 1:
             for md in paths:
-                all_issues.append(("ERR", md.relative_to(vault), f"item_key 重复：{k}（{len(paths)} 篇共用）"))
+                all_issues.append(("ERR", md.relative_to(vault), f"source_id 重复：{source_id}（{len(paths)} 篇共用）"))
 
     err = sum(1 for lv, _, _ in all_issues if lv == "ERR")
     warn = sum(1 for lv, _, _ in all_issues if lv == "WARN")

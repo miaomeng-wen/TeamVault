@@ -6,7 +6,6 @@
 
 1. **Obsidian**：<https://obsidian.md/download>，默认安装。
 2. **Git**：<https://git-scm.com/download/win>，安装时全部默认选项。
-3. **Zotero 7**：<https://www.zotero.org/download/>，默认安装。
 
 ## 二、加入知识库（一次性）
 
@@ -31,29 +30,34 @@ Obsidian 设置 → 第三方插件 → 浏览：
 
 配置完手动点一次 "Commit-and-sync" 确认能通。
 
-### 3. 加入 Zotero 群组库
+### 3. 加入团队文件库
 
-1. 注册/登录 <https://www.zotero.org>，接受管理员发来的群组邀请邮件（或点邀请链接）。
-2. 本机 Zotero → 编辑 → 设置 → 同步 → 登录同一账号 → 勾选 "同步群组库"。
-3. 点右上角同步按钮，等待群组库条目/PDF 同步完成。
+向管理员申请团队文件库权限，并确认：
 
-### 4. 配置本机密钥
+- 能打开一份测试 PDF；
+- 能复制稳定的 HTTPS 分享链接；
+- 需要上传资料时拥有对应目录的写权限；
+- 本地同步目录不会被提交进 TeamVault 的 Git 仓库。
 
-```bat
-copy config\.env.example config\.env
-notepad config\.env
-```
+### 4. 安装团队智能体技能
 
-填写 `ZOTERO_GROUP_ID`（群组页 URL 中的数字）和 `ZOTERO_API_KEY`（在 <https://www.zotero.org/settings/keys/new> 创建，只需群组库 Read 权限）。`.env` 不会提交进 Git。
+按 `team-skills/README.md` 把 `source-intake`、`vault-qa`、`team-digest` 安装到本机技能目录，然后重新打开 agent 会话。
 
 ## 三、日常使用
 
 ### 认领并精读一篇论文
 
-1. 打开 `04_Tables/待认领清单.md`，挑一篇无人认领的论文。
-2. 让你的智能体执行 `zotero-team-fetcher` 抓取该条目 → 按模板生成 `02_Literature` 笔记，frontmatter 填你的 ID（`assignee`）和 `reading_status: reading`。
-3. 精读、补全证据与页码跳转，完成后改 `reading_status: finished`。
-4. 提交：让 agent 提交，或手动 `git add -A && git commit -m "notes: Khan_2025_xxx" && git push`。
+1. 新来源：把 DOI、来源 URL、PDF 链接或书目信息交给 `source-intake`；它会按 `source_id` 查重并创建文献笔记。
+2. 已建档来源：打开 `04_Tables/待认领清单.md`，挑一篇无人认领的笔记。
+3. 在 frontmatter 填自己的 `assignee`，把 `reading_status` 改为 `reading`。
+4. 精读并补全证据、页码和链接；终检通过后改为 `finished`。
+5. 运行 `vault-qa`，无 ERR 后提交：`git add -A && git commit -m "notes: Khan_2025_xxx" && git push`。
+
+### 新增 PDF
+
+1. 按团队文件库规范上传 PDF，文件名优先包含 DOI 或 `source_id`。
+2. 复制稳定链接到文献笔记的 `pdf_url`。
+3. 不把 PDF、数据集等大文件复制进 TeamVault 仓库。
 
 ### 只想查资料
 
@@ -80,17 +84,19 @@ git config user.email "你的邮箱"
 git commit --amend --reset-author --no-edit
 ```
 
-### 创建 Zotero 群组库
+### 配置团队文件库
 
-1. <https://www.zotero.org/groups/> → Create New Group → 类型选 Private。
-2. Members 页邀请成员（权限给 Read）。
-3. 把原有个别库条目批量导入群组（Zotero 里全选 → 右键 → Add to Collection，先在群组库建好同名分类）。
-4. 生成 API Key 并分发给成员各自填入自己的 `config/.env`（不要在群里发明文）。
+1. 使用单位已有的网盘、NAS、对象存储或其他受控文件服务。
+2. 至少建立 `papers/` 与 `datasets/` 目录，并按团队角色设置权限。
+3. 验证分享链接不会随成员本地同步路径变化。
+4. 指定备份负责人、备份频率和恢复抽查周期。
+5. 若服务需要 API Key，只放在成员本机 `config/.env`，不得提交或在群里明文分发。
 
 ## 五、常见问题
 
 - **推送被拒 / 冲突**：先 `git pull --rebase`，解决冲突后 `git push`；看板类文件（04_Tables）冲突时随便取一边——它们是自动生成的，拉平后刷新即可。
 - **看板不刷新**：确认 Dataview 插件已启用；`Ctrl+P → Reload app without saving`。
-- **Zotero 同步空间满了**：免费版群组库 300MB。方案：PDF 放团队网盘/NAS，群组库只留元数据；或升级 Zotero Storage。
-- **智能体没反应**：确认 `team-skills` 里的技能已安装到本机 skills 目录（见 `team-skills/README.md`），且 `config/.env` 已填写。
+- **PDF 链接打不开**：先确认已登录团队文件库，再请管理员检查分享范围；不要用成员个人电脑的本地路径代替。
+- **来源重复**：不要新建第二篇，按 `source_id` 找到原笔记并补全；无法判断时运行 `vault-qa`。
+- **智能体没反应**：确认 `team-skills` 已安装到本机 `.codex/skills` 目录并重新打开会话。
 - **我不小心改坏了 04_Tables**：`git checkout -- 04_Tables/` 恢复即可。

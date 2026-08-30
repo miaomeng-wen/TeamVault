@@ -8,12 +8,18 @@
 config/.env
 .env
 
+# 大文件进入团队文件库，不进入 Git
+*.pdf
+
 # 智能体本机会话数据
 .claudian/
+.codex/
 .zcode/
 .trash/
 
 # 系统垃圾文件
+__pycache__/
+*.pyc
 Thumbs.db
 desktop.ini
 .DS_Store

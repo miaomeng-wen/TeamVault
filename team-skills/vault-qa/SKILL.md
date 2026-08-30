@@ -1,6 +1,6 @@
 ---
 name: vault-qa
-description: 对 TeamVault 文献库做只读规范巡检：frontmatter 完整性、文件命名、状态机取值、item_key 唯一性。用于写完笔记后的自检、定期全库巡检、周报异常摘要。只输出报告，不修改任何笔记。
+description: 对 TeamVault 文献库做只读规范巡检：frontmatter 完整性、文件命名、状态机、source_id 唯一性、主题目录与证据要求。用于写完笔记后的自检、定期全库巡检、周报异常摘要。只输出报告，不修改任何笔记。
 ---
 
 # vault-qa
@@ -21,8 +21,8 @@ python scripts\vault_qa.py --vault <路径>   # 指定 vault（默认自动定�
 
 ## 检查项
 
-- ERR：文件名不符合 `作者_年份_短标题`；必填字段缺失或为空（`title` / `item_key` / `authors` / `year` / `reading_status`）；`reading_status` / `screening_status` 取值非法；`year` 非 4 位数字；`item_key` 非 8 位字母数字或全库重复。
-- WARN：缺 `zotero` / `pdf` 跳转链接；未填 `assignee`（待认领）。
+- ERR：文件名或年份不一致；必填字段为空；状态、来源类型或主题非法；`source_id` 格式错误或重复；`theme` 与所在目录不一致；`finished` 笔记没有带页码的证据表行。
+- WARN：`source_url` / `pdf_url` 均为空或不是 HTTP(S) 稳定链接；未填 `assignee`（待认领）。
 - `00_` 开头的索引页自动豁免。
 
 ## 何时运行

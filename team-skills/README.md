@@ -6,22 +6,22 @@
 
 | 技能 | 职责 | 形态 |
 | --- | --- | --- |
-| `zotero-team-fetcher` | 从 Zotero 群组库只读抓条目/分类/附件 | SKILL.md + Python 脚本 |
+| `source-intake` | 从 DOI、URL、PDF 链接或人工元数据创建/补全文献笔记 | SKILL.md（流程型） |
 | `vault-qa` | 文献库规范巡检（frontmatter/命名/查重） | SKILL.md + Python 脚本 |
 | `team-digest` | 生成团队周报到 `08_Daily` | SKILL.md（流程型，无脚本） |
 
-脚本均为 Python 3.9+ 纯标准库，无第三方依赖；对 Zotero 只读。
+脚本使用 Python 3.9+ 标准库，无第三方依赖。
 
 ## 安装（每个成员本机一次）
 
-前置：已完成 `CONTRIBUTING.md` 第二节（vault 已 clone、`config/.env` 已填写）。
+前置：已完成 `CONTRIBUTING.md` 第二节（vault 已 clone，团队文件库链接可访问）。
 
 PowerShell：
 
 ```powershell
 $src = "E:\TeamVault\team-skills"
-$dst = "$env:USERPROFILE\.zcode\skills"
-Copy-Item "$src\zotero-team-fetcher" $dst -Recurse -Force
+$dst = "$env:USERPROFILE\.codex\skills"
+Copy-Item "$src\source-intake" $dst -Recurse -Force
 Copy-Item "$src\vault-qa" $dst -Recurse -Force
 Copy-Item "$src\team-digest" $dst -Recurse -Force
 ```
@@ -34,5 +34,5 @@ Copy-Item "$src\team-digest" $dst -Recurse -Force
 
 ## 注意
 
-- `config/.env` 不随 Git 分发，每台机器单独填写。
-- 脚本对 `zotero.sqlite` / `storage` 严格只读，这是 `AGENTS.md` 规定的铁律；发现任何技能试图写入请立即停止并上报。
+- 核心流程不需要 API Key；未来接入文件服务时，凭据只放各成员本机 `config/.env`。
+- `source-intake` 默认不上传、移动或删除团队文件库中的文件。

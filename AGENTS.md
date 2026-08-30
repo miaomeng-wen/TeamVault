@@ -8,12 +8,12 @@
 
 | 层 | 载体 | 职责 | 写入权限 |
 | --- | --- | --- | --- |
-| 书目层 | Zotero 群组库 | 条目元数据、PDF、标签、分类（collection） | 只读。新增/修改条目一律在 Zotero 客户端完成 |
-| 知识层 | 本 vault 的 Markdown 笔记 | 文献笔记、概念、实验记录、纪要、草稿 | 认领制写入（见 §4） |
+| 资料层 | 团队文件库（网盘 / NAS / 对象存储） | PDF、数据集及其他大文件 | 按团队文件库权限写入，不进入 Git |
+| 知识层 | 本 vault 的 Markdown 笔记 | 来源元数据、文献笔记、概念、实验记录、纪要、草稿 | 认领制写入（见 §4） |
 | 视图层 | `04_Tables` 全部页面 | Dataview 自动派生的索引与看板 | **禁止手工编辑**，由查询自动生成 |
 
-- 文献笔记的 `reading_status` / `screening_status` 是阅读进度的**唯一事实源**；本库不设手工进度总表，一切看板由 frontmatter 派生。
-- Zotero collection 只决定"处理队列"，**绝不决定**笔记存放目录；归档目录记录在笔记 frontmatter 的 `collection` 字段。
+- 文献笔记的 `source_id`、`reading_status`、`screening_status` 是来源身份与处理进度的**唯一事实源**；本库不设手工进度总表，一切看板由 frontmatter 派生。
+- `source_url` 指向来源主页，`pdf_url` 指向团队文件库中的 PDF；二者只保存稳定链接，不把 PDF 等大文件提交进 Git。
 
 ## 2. 目录职责
 
@@ -28,7 +28,7 @@
 | `06_Drafts` | 论文写作与草稿 | 章节认领制 |
 | `07_Templates` | 笔记模板 | 仅团队决议后修改 |
 | `08_Daily` | 日报、周报、流水记录 | 自由写入 |
-| `09_Assets` | 图片等附件 | 自由写入，命名带日期前缀 |
+| `09_Assets` | 小型图片等 Markdown 附件 | 自由写入，命名带日期前缀；PDF、数据集等大文件放团队文件库 |
 | `99_Archive` | 废弃/过时内容归档 | 移入而非删除 |
 | `config` | 环境配置 | `.env` 不入库 |
 | `team-skills` | 智能体技能源码 | 走 Git 评审后更新 |
@@ -48,19 +48,20 @@
 
 - 命名：`作者_年份_短标题.md`（如 `Khan_2025_Multimedia_Deepfake_Detection_Survey`），作者取第一作者姓氏，短标题用下划线连接的英文。
 - 必须从 `07_Templates/文献笔记模板.md` 创建，frontmatter 字段含义见模板内注释。
-- 双状态机（取值只能二选一）：
+- `source_id` 是全库唯一、稳定且幂等的来源标识：优先写 `doi:<小写 DOI>`；无 DOI 时写 `url:<规范化来源 URL>`；两者都没有时写 `manual:<UUID>`。
+- 双状态机（字段取值限定如下）：
   - `reading_status`：`unread` → `reading` → `finished` / `excluded`
   - `screening_status`：`included` / `candidate` / `excluded`
   - 只有终检通过的笔记才允许 `finished`。
-- 证据规范：保留 `zotero://select/...` 与 `zotero://open-pdf/...?page=N` 页码级跳转；未读到的字段写"未核验"，**禁止补造**。
+- 证据规范：每条关键证据记录页码，并链接到 `pdf_url` 或 `source_url`；未读到的字段写"未核验"，**禁止补造**。
 
 ## 4. 认领制与写入边界
 
 1. **认领**：在笔记 frontmatter 填 `assignee`（成员标识，如拼音名），或先在"待认领清单"挑任务。一篇笔记同时只有一个认领人。
-2. **幂等写入**：写入前按 `item_key` 全库查重；已存在同 key 笔记时只做补全/更新，不新建副本。
+2. **幂等写入**：写入前按 `source_id` 全库查重；已存在同 ID 笔记时只做补全/更新，不新建副本。
 3. **一人一实例**：每个成员的 agent 实例只写自己认领的文件；不修改他人笔记，改由 Git 合并或协商完成。
 4. **热点不写单文件**：禁止把进度、清单类信息集中写进任何单一手工文件（这正是派生看板存在的原因）。
-5. **agent 快速路径**：智能体写文献笔记的标准链路是 `zotero-team-fetcher`（抓数据）→ 按模板生成 → `vault-qa` 自检 → Git 提交。链路外的批量写入须先征得团队同意。
+5. **agent 快速路径**：智能体写文献笔记的标准链路是 `source-intake`（整理来源）→ 按模板生成 → `vault-qa` 自检 → Git 提交。链路外的批量写入须先征得团队同意。
 
 ## 5. Git 协作规范
 
@@ -78,14 +79,14 @@
 ## 6. 智能体职责与禁区
 
 **职责**
-- `zotero-team-fetcher`：从 Zotero 群组库只读抓取条目/分类/附件信息，输出 JSON 供写笔记使用。
-- 文献笔记生成：按模板 + fetcher 数据生成或补全笔记，自动填 `assignee`、状态、`collection`。
-- `vault-qa`：定期巡检 frontmatter 完整性、命名规范、状态机合法性、`item_key` 唯一性，输出报告。
+- `source-intake`：接收 DOI、URL、PDF 链接或人工元数据，查重并按模板创建或补全文献笔记。
+- 文献笔记生成：按模板整理来源信息，自动填 `source_id`、`assignee`、状态、`source_url` 与 `pdf_url`。
+- `vault-qa`：定期巡检 frontmatter 完整性、命名规范、状态机合法性、`source_id` 唯一性与主题目录一致性，输出报告。
 - `team-digest`：定期生成周报到 `08_Daily`（新增文献、状态流转、待认领积压、质检异常）。
 - 检索问答：基于本 vault 回答团队问题，回答必须给出笔记出处链接。
 
 **禁区**
-- 对 Zotero 数据库（`zotero.sqlite`、`storage/`）只读，任何脚本不得写入。
+- 不把 PDF、数据集等大文件提交进 Git；资料文件只放团队文件库，vault 保存稳定链接。
 - 不修改 `04_Tables` 派生页、`00_Home/建设方案.md`（只读文档）。
 - 不批量改写他人笔记、不做未经确认的全库重命名/移动。
 - 不把 `config/.env`、本地会话数据提交进 Git。
@@ -93,6 +94,6 @@
 
 ## 7. 隐私与安全
 
-- 本仓库为团队内部资料：文献笔记、实验数据不得外传，不得推到公开仓库。
-- API Key 只存 `config/.env`（已 ignore）；发现泄露立即在 zotero.org 撤销重建。
+- 本仓库与团队文件库均为内部资料：文献笔记、实验数据及文件链接不得外传，不得推到公开仓库。
+- API Key、访问令牌只存 `config/.env`（已 ignore）；发现泄露立即在对应服务撤销重建。
 - 个人草稿如需隔离，放 `99_Archive` 之外的本地未跟踪目录并在 `.gitignore` 登记。

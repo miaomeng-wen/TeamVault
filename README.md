@@ -1,6 +1,6 @@
 # TeamVault · 团队科研知识库
 
-Obsidian + Zotero 群组库 + 智能体流水线构成的团队知识库。文献管理规范、协作规则与智能体写入边界见 [AGENTS.md](AGENTS.md)；新成员上手步骤见 [CONTRIBUTING.md](CONTRIBUTING.md)；整体设计思路见 `00_Home/建设方案.md`，vault 内入口页为 `00_Home/Home.md`。
+Obsidian + Git + 团队文件库 + 智能体流水线构成的团队知识库。来源管理规范、协作规则与智能体写入边界见 [AGENTS.md](AGENTS.md)；新成员上手步骤见 [CONTRIBUTING.md](CONTRIBUTING.md)；整体设计思路见 `00_Home/建设方案.md`，vault 内入口页为 `00_Home/Home.md`。
 
 ## 目录速览
 
@@ -22,6 +22,6 @@ Obsidian + Zotero 群组库 + 智能体流水线构成的团队知识库。文�
 
 ## 三条铁律
 
-1. Zotero 只读：任何脚本、任何人不直接写 Zotero 数据库，新增条目走 Zotero 客户端。
-2. 状态即事实：阅读/筛选状态只写在文献笔记的 frontmatter 里，看板自动汇总，没有手工进度表。
-3. 认领制写入：文献笔记只由 `assignee` 认领人（或其 agent）写入，写入前按 `item_key` 全库查重。
+1. 来源即笔记：来源元数据与处理状态统一写在文献笔记 frontmatter，按 `source_id` 全库查重。
+2. 文件外置：PDF、数据集等大文件放团队文件库，Git 只保存 Markdown 和小型附件。
+3. 认领制写入：文献笔记只由 `assignee` 认领人（或其 agent）写入，看板自动汇总，不维护手工进度表。
