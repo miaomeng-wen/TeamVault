@@ -1,8 +1,10 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-"""TeamVault 文献库质检工具（只读，不修改任何笔记）。
+"""TeamVault 知识库质检工具（只读，不修改任何笔记）。
 
-扫描 02_Literature 下全部 .md 笔记，检查：
+扫描 02_Literature（文献笔记）与 03_Concepts（概念卡片）下全部 .md 笔记。
+
+文献笔记检查：
   1. 文件命名符合 作者_年份_短标题（00_ 开头的索引页自动跳过）
   2. frontmatter 必填字段非空
   3. reading_status / screening_status 取值合法
@@ -10,7 +12,11 @@
   5. source_id 格式合法且全库唯一
   6. source_type / theme 合法，theme 与所在目录一致
   7. source_url / pdf_url 至少有一个可用链接
-  8. finished 笔记至少有一条页码证据
+  8. finished 笔记至少有一条页码证据，且 screening_status 为 included
+概念卡片检查：
+  9. title / created / assignee 必填；tags、related_sources 缺失给 WARN
+
+frontmatter 解析会剥离行内注释（与 Obsidian/YAML 一致：注释以空白+# 开始）。
 
 定位 vault：--vault 参数 > 环境变量 RESEARCH_VAULT > 脚本所在仓库根（本脚本位于
 <vault>/team-skills/vault-qa/scripts/，自动向上取 parents[3]）。
@@ -46,6 +52,8 @@ EVIDENCE_ROW_RE = re.compile(
     r"^\|\s*[^|\s][^|]*\|\s*(?:第\s*)?\d+\s*页?\s*\|\s*[^|\s][^|]*\|",
     re.M,
 )
+CONCEPT_REQUIRED = ["title", "created", "assignee"]
+INLINE_COMMENT_RE = re.compile(r"\s#")
 
 
 def out_utf8() -> None:
@@ -63,6 +71,18 @@ def find_vault(explicit) -> Path:
     return Path(__file__).resolve().parents[3]
 
 
+def strip_inline_comment(val: str) -> str:
+    """剥离 YAML 行内注释：注释以空白+# 开始；值首直接 # 视为空值。
+
+    与 Obsidian/Dataview 的 YAML 解析保持一致，模板中的
+    `reading_status: unread   # unread | ...` 应解析为 `unread`。
+    """
+    m = INLINE_COMMENT_RE.search(val)
+    if m:
+        val = val[: m.start()].rstrip()
+    return "" if val.startswith("#") else val
+
+
 def parse_frontmatter(text: str):
     """极简 frontmatter 解析：仅支持 key: value 与 key: [a, b] 两种形态。"""
     lines = text.splitlines()
@@ -76,7 +96,7 @@ def parse_frontmatter(text: str):
         if not s or s.startswith("#") or ":" not in s:
             continue
         key, _, val = s.partition(":")
-        val = val.strip()
+        val = strip_inline_comment(val.strip())
         if val.startswith("[") and val.endswith("]"):
             inner = val[1:-1].strip()
             fm[key.strip()] = [x.strip().strip("'\"") for x in inner.split(",")] if inner else []
@@ -138,35 +158,63 @@ def check_note(md: Path):
         issues.append(("WARN", "未填 assignee（待认领）"))
     if rs == "finished" and not EVIDENCE_ROW_RE.search(text):
         issues.append(("ERR", "finished 笔记缺少带页码的证据表行"))
+    if rs == "finished" and ss in SCREENING_OK and ss != "included":
+        issues.append(("ERR", f"finished 要求终检通过（screening_status 应为 included，当前 {ss}）"))
+    return issues, fm
+
+
+def check_concept(md: Path):
+    """概念卡片检查：返回 (issues, fm)。只查基础 frontmatter，不约束命名。"""
+    issues = []
+    try:
+        text = md.read_text(encoding="utf-8", errors="replace")
+    except OSError as e:
+        return [("ERR", f"无法读取：{e}")], {}
+    fm, _ = parse_frontmatter(text)
+    for f in CONCEPT_REQUIRED:
+        v = fm.get(f)
+        if v is None or v == [] or (isinstance(v, str) and not v.strip()):
+            issues.append(("ERR", f"必填字段缺失或为空：{f}"))
+    if not fm.get("tags"):
+        issues.append(("WARN", "未填 tags（建议 concept 或 method）"))
+    if not fm.get("related_sources"):
+        issues.append(("WARN", "未关联任何文献（related_sources 为空）"))
     return issues, fm
 
 
 def main(argv=None) -> int:
     out_utf8()
-    p = argparse.ArgumentParser(description="TeamVault 文献库质检（只读）")
+    p = argparse.ArgumentParser(description="TeamVault 知识库质检（只读）")
     p.add_argument("--vault", help="vault 根目录（默认自动定位）")
     p.add_argument("--strict", action="store_true", help="存在 ERR 时退出码 2")
     a = p.parse_args(argv)
 
     vault = find_vault(a.vault)
-    lit = vault / "02_Literature"
-    if not lit.is_dir():
-        print(f"[ERR] 未找到文献目录：{lit}")
+    if not (vault / "02_Literature").is_dir():
+        print(f"[ERR] 未找到文献目录：{vault / '02_Literature'}")
         return 2
 
+    areas = (("02_Literature", check_note), ("03_Concepts", check_concept))
     source_id_map = defaultdict(list)
     all_issues = []
-    n_checked = 0
-    for md in sorted(lit.rglob("*.md")):
-        issues, fm = check_note(md)
-        if md.stem.startswith("00_"):
+    area_counts = {}
+    for area, checker in areas:
+        area_path = vault / area
+        if not area_path.is_dir():
             continue
-        n_checked += 1
-        sid = fm.get("source_id")
-        if sid:
-            source_id_map[str(sid)].append(md)
-        for lv, msg in issues:
-            all_issues.append((lv, md.relative_to(vault), msg))
+        n_checked = 0
+        for md in sorted(area_path.rglob("*.md")):
+            if md.stem.startswith("00_"):
+                continue
+            issues, fm = checker(md)
+            n_checked += 1
+            if area == "02_Literature":
+                sid = fm.get("source_id")
+                if sid:
+                    source_id_map[str(sid)].append(md)
+            for lv, msg in issues:
+                all_issues.append((lv, md.relative_to(vault), msg))
+        area_counts[area] = n_checked
 
     for source_id, paths in sorted(source_id_map.items()):
         if len(paths) > 1:
@@ -175,9 +223,10 @@ def main(argv=None) -> int:
 
     err = sum(1 for lv, _, _ in all_issues if lv == "ERR")
     warn = sum(1 for lv, _, _ in all_issues if lv == "WARN")
-    print("== TeamVault 文献库质检报告 ==")
+    print("== TeamVault 知识库质检报告 ==")
     print(f"vault：{vault}")
-    print(f"扫描笔记：{n_checked} 篇；问题：{err} ERR / {warn} WARN")
+    scan_summary = " · ".join(f"{area} {n} 篇" for area, n in area_counts.items())
+    print(f"扫描笔记：{scan_summary or '无'}；问题：{err} ERR / {warn} WARN")
     if not all_issues:
         print("全部通过")
         return 0
