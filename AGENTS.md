@@ -52,12 +52,13 @@
 - 双状态机（字段取值限定如下）：
   - `reading_status`：`unread` → `reading` → `finished` / `excluded`
   - `screening_status`：`included` / `candidate` / `excluded`
-  - 只有终检通过的笔记才允许 `finished`。
+  - 只有终检通过的笔记才允许 `finished`：即 `screening_status` 已定为 `included`，且证据表已有带页码的行（`vault-qa` 会检查）。
 - 证据规范：每条关键证据记录页码，并链接到 `pdf_url` 或 `source_url`；未读到的字段写"未核验"，**禁止补造**。
+- 概念卡片（`03_Concepts`）从 `07_Templates/概念卡片模板.md` 创建：必填 `title`、`created`、`assignee`，用 `related_sources` 关联文献笔记的 `source_id`；概念卡只沉淀定义与要点，不复述文献笔记。
 
 ## 4. 认领制与写入边界
 
-1. **认领**：在笔记 frontmatter 填 `assignee`（成员标识，如拼音名），或先在"待认领清单"挑任务。一篇笔记同时只有一个认领人。
+1. **认领**：在笔记 frontmatter 填 `assignee`（成员标识：小写拼音全名，如 `zhangsan`；一人一标识，全库一致，新成员入职时报备自己的标识），或先在 `04_Tables/团队任务看板.md` 的"待认领"小节挑任务。一篇笔记同时只有一个认领人。
 2. **幂等写入**：写入前按 `source_id` 全库查重；已存在同 ID 笔记时只做补全/更新，不新建副本。
 3. **一人一实例**：每个成员的 agent 实例只写自己认领的文件；不修改他人笔记，改由 Git 合并或协商完成。
 4. **热点不写单文件**：禁止把进度、清单类信息集中写进任何单一手工文件（这正是派生看板存在的原因）。
@@ -73,6 +74,7 @@
   - `qa:` 质检修复、`spec:` 规范与模板修订、`skill:` team-skills 变更
   - `digest:` 周报与摘要生成（team-digest 产出）
   - `archive:` 归档与清理
+- Obsidian Git 插件的自动备份提交（`vault backup:` 前缀）视为机器同步，不受上述前缀约束；手工提交仍须使用规范前缀。
 - 拉取优先：开写前先 pull；遇冲突优先保留双方内容再人工合并，**不删他人笔记**，不确定时找对方。
 - 严禁 `git push --force`、`git reset --hard` 他人提交；历史修复须全员知会。
 
@@ -81,7 +83,7 @@
 **职责**
 - `source-intake`：接收 DOI、URL、PDF 链接或人工元数据，查重并按模板创建或补全文献笔记。
 - 文献笔记生成：按模板整理来源信息，自动填 `source_id`、`assignee`、状态、`source_url` 与 `pdf_url`。
-- `vault-qa`：定期巡检 frontmatter 完整性、命名规范、状态机合法性、`source_id` 唯一性与主题目录一致性，输出报告。
+- `vault-qa`：定期巡检 frontmatter 完整性、命名规范、状态机合法性、`source_id` 唯一性与主题目录一致性（含 `03_Concepts` 概念卡基础字段），输出报告。
 - `team-digest`：定期生成周报到 `08_Daily`（新增文献、状态流转、待认领积压、质检异常）。
 - 检索问答：基于本 vault 回答团队问题，回答必须给出笔记出处链接。
 

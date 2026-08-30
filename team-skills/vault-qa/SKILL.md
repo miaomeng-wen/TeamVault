@@ -21,9 +21,18 @@ python scripts\vault_qa.py --vault <路径>   # 指定 vault（默认自动定�
 
 ## 检查项
 
-- ERR：文件名或年份不一致；必填字段为空；状态、来源类型或主题非法；`source_id` 格式错误或重复；`theme` 与所在目录不一致；`finished` 笔记没有带页码的证据表行。
+文献笔记（`02_Literature`）：
+
+- ERR：文件名或年份不一致；必填字段为空；状态、来源类型或主题非法；`source_id` 格式错误或重复；`theme` 与所在目录不一致；`finished` 笔记没有带页码的证据表行，或 `screening_status` 不是 `included`。
 - WARN：`source_url` / `pdf_url` 均为空或不是 HTTP(S) 稳定链接；未填 `assignee`（待认领）。
 - `00_` 开头的索引页自动豁免。
+
+概念卡片（`03_Concepts`）：
+
+- ERR：`title` / `created` / `assignee` 缺失或为空。
+- WARN：`tags` 或 `related_sources` 为空。
+
+frontmatter 解析与 Obsidian/YAML 行为一致：行内 `#` 注释（以空白+# 开始）会被剥离，模板中的行内注释不会误报。
 
 ## 何时运行
 

@@ -23,7 +23,7 @@ tags: [home]
 
 ## 参考
 
-- 模板：`07_Templates/`（文献笔记 · 组会纪要 · 实验记录）
+- 模板：`07_Templates/`（文献笔记 · 概念卡片 · 组会纪要 · 实验记录）
 - 智能体技能：`team-skills/`（source-intake · vault-qa · team-digest）
 
 ## 最近建档

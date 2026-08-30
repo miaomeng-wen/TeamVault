@@ -26,7 +26,7 @@ Obsidian 设置 → 第三方插件 → 浏览：
 - **Obsidian Git**：自动同步。建议配置：
   - Auto Pull Interval：`15` 分钟
   - Vault Backup Interval（自动 commit+push）：`30` 分钟
-  - Commit Message：`vault backup: {{date}}`
+  - Commit Message：`vault backup: {{date}}`（自动备份专用前缀，不计入手工提交前缀规范，见 AGENTS.md）
 
 配置完手动点一次 "Commit-and-sync" 确认能通。
 
@@ -48,8 +48,8 @@ Obsidian 设置 → 第三方插件 → 浏览：
 ### 认领并精读一篇论文
 
 1. 新来源：把 DOI、来源 URL、PDF 链接或书目信息交给 `source-intake`；它会按 `source_id` 查重并创建文献笔记。
-2. 已建档来源：打开 `04_Tables/待认领清单.md`，挑一篇无人认领的笔记。
-3. 在 frontmatter 填自己的 `assignee`，把 `reading_status` 改为 `reading`。
+2. 已建档来源：打开 `04_Tables/团队任务看板.md` 的"待认领"小节，挑一篇无人认领的笔记。
+3. 在 frontmatter 填自己的 `assignee`（小写拼音名），把 `reading_status` 改为 `reading`。
 4. 精读并补全证据、页码和链接；终检通过后改为 `finished`。
 5. 运行 `vault-qa`，无 ERR 后提交：`git add -A && git commit -m "notes: Khan_2025_xxx" && git push`。
 
