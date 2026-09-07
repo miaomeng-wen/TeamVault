@@ -1,5 +1,5 @@
 ---
-title: A Contemporary Survey on Deepfake Detection: Datasets, Algorithms, and Challenges
+title: "A Contemporary Survey on Deepfake Detection: Datasets, Algorithms, and Challenges"
 aliases: []
 tags: [survey, deepfake]
 created: 2026-08-31

@@ -83,6 +83,42 @@ def strip_inline_comment(val: str) -> str:
     return "" if val.startswith("#") else val
 
 
+def check_frontmatter_syntax(text: str) -> list[tuple[str, str]]:
+    """检查 frontmatter 的 YAML 语法常见风险，防止 Obsidian 解析崩溃。"""
+    lines = text.splitlines()
+    if not lines or lines[0].strip() != "---":
+        return [("ERR", "frontmatter 缺少开头的 '---' 分隔符")]
+    closing = False
+    issues = []
+    for idx, line in enumerate(lines[1:], start=2):
+        s = line.strip()
+        if s == "---":
+            closing = True
+            break
+        if not s or s.startswith("#") or ":" not in s:
+            continue
+        key, _, val = s.partition(":")
+        val = strip_inline_comment(val.strip())
+        if not val:
+            continue
+        is_quoted = (val.startswith('"') and val.endswith('"')) or (val.startswith("'") and val.endswith("'"))
+        is_list = val.startswith("[") and val.endswith("]")
+        if not is_quoted and not is_list:
+            if ": " in val:
+                issues.append((
+                    "ERR",
+                    f"字段 '{key.strip()}' 值中包含 ': ' 但未加双引号，会导致 Obsidian/YAML 解析崩溃（第 {idx} 行）",
+                ))
+            elif (val.startswith('"') and not val.endswith('"')) or (val.startswith("'") and not val.endswith("'")):
+                issues.append((
+                    "ERR",
+                    f"字段 '{key.strip()}' 引号未闭合（第 {idx} 行）",
+                ))
+    if not closing:
+        issues.append(("ERR", "frontmatter 缺少结尾的 '---' 闭合分隔符"))
+    return issues
+
+
 def parse_frontmatter(text: str):
     """极简 frontmatter 解析：仅支持 key: value 与 key: [a, b] 两种形态。"""
     lines = text.splitlines()
@@ -114,6 +150,7 @@ def check_note(md: Path):
         text = md.read_text(encoding="utf-8", errors="replace")
     except OSError as e:
         return [("ERR", f"无法读取：{e}")], {}
+    issues.extend(check_frontmatter_syntax(text))
     fm, _ = parse_frontmatter(text)
 
     name_match = NAME_RE.match(md.stem)
@@ -170,6 +207,7 @@ def check_concept(md: Path):
         text = md.read_text(encoding="utf-8", errors="replace")
     except OSError as e:
         return [("ERR", f"无法读取：{e}")], {}
+    issues.extend(check_frontmatter_syntax(text))
     fm, _ = parse_frontmatter(text)
     for f in CONCEPT_REQUIRED:
         v = fm.get(f)

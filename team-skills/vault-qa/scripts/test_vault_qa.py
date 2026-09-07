@@ -101,8 +101,27 @@ related_sources: [doi:10.1234/survey]
 """,
             encoding="utf-8",
         )
-        issues, _ = check_concept(concept)
-        assert not any(level == "ERR" for level, _ in issues), issues
+        # 语法检查：包含 ': ' 但未加双引号 → ERR
+        survey.write_text(
+            survey.read_text(encoding="utf-8").replace(
+                "title: Example Survey",
+                "title: Example Survey: Datasets and Methods",
+            ),
+            encoding="utf-8",
+        )
+        issues, _ = check_note(survey)
+        assert any("未加双引号" in message for _, message in issues), issues
+
+        # 加上双引号后 → 消除该 ERR
+        survey.write_text(
+            survey.read_text(encoding="utf-8").replace(
+                "title: Example Survey: Datasets and Methods",
+                'title: "Example Survey: Datasets and Methods"',
+            ),
+            encoding="utf-8",
+        )
+        issues, _ = check_note(survey)
+        assert not any("未加双引号" in message for _, message in issues), issues
 
     print("vault-qa self-check passed")
 

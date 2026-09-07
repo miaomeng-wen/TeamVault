@@ -20,7 +20,7 @@ description: 将 DOI、来源 URL、PDF 链接或人工元数据整理为 TeamVa
 ## 建档流程
 
 1. 读取 vault 根目录的 `AGENTS.md` 与 `07_Templates/文献笔记模板.md`。
-2. 从用户提供的 DOI、URL、PDF 或元数据提取可核验字段；无法核验的内容写“未核验”，不猜测。
+2. 从用户提供的 DOI、URL、PDF 或元数据提取可核验字段；标题若含冒号（`: `）等特殊字符必须用双引号包裹（如 `title: "..."`）以防 YAML 报错；无法核验的内容写“未核验”，不猜测。
 3. 按主要贡献选择唯一主题目录，文件名使用 `作者_年份_短标题.md`。
 4. 新笔记默认 `reading_status: unread`、`screening_status: candidate`；只有用户明确认领时才填写 `assignee` 并改为 `reading`。
 5. `source_url` 保存来源主页，`pdf_url` 保存团队文件库中的稳定链接。没有 PDF 链接可以留空，不得把 PDF 复制进 Git。
