@@ -1,5 +1,4 @@
 ---
-# —— 标识（必填）——
 title: "DeMamba: AI-Generated Video Detection on Million-Scale GenVideo Benchmark"
 aliases:
   - DeMamba
@@ -13,31 +12,27 @@ tags:
   - deepfake-detection
   - mamba
 created: 2026-09-08
-assignee: 
-# —— 状态机（取值见下）——
-reading_status: unread   # unread | reading | finished | excluded
-screening_status: candidate # included | candidate | excluded
-# —— 来源标识与链接（必填）——
+assignee: 文宇豪
+reading_status: reading
+screening_status: candidate
 source_id: doi:10.1007/s11432-024-4894-0
-source_type: article     # article | conference | book | chapter | report | dataset | web | thesis | other
+source_type: article
 doi: 10.1007/s11432-024-4894-0
 source_url: https://doi.org/10.1007/s11432-024-4894-0
-pdf_url: 
-# —— 书目元数据 ——
+pdf_url:
 authors: Chen; Hong; Huang; Xu; Gu; Li; Lan; Zhu; Zhang; Wang; Li
 year: 2026
-source: "Science China Information Sciences，Vol. 69, Issue 6, Article 162103（预印本：arXiv:2405.19707）"
+source: Science China Information Sciences，Vol. 69, Issue 6, Article 162103（预印本：arXiv:2405.19707）
 theme: 02_数据集与基准
-# —— 内容提炼（未读到写"未核验"，禁止补造）——
-study_area: "AI 生成视频检测（AI-Generated Video Detection / AIGC 视频伪造检测与取证）"
-data_source: "GenVideo 数据集（训练集 2,294,594 片段，测试集 19,588 片段；涵盖主流扩散/自回归等 10+ 类生成模型与 Youku-mPLUG、Kinetics-400、MSR-VTT 真实视频）"
-methodology: "构建百万级 AIGC 视频检测基准 GenVideo 及两项评测协议（跨生成器泛化、质量退化分类）；提出基于 3D 连续扫描机制的状态空间模型即插即用插件 DeMamba（Detail Mamba）"
-core_variable: "自变量：生成器机制/架构（未见域）、视频压缩与常见扰动退化类型；因变量：分类准确率（ACC）、平均精度（AP）"
-key_finding: "传统人脸伪造与图像检测器难以应对通用 AIGC 视频的跨模型泛化与传播退化；DeMamba 插件通过捕捉局部时空不一致性，在 XCLIP 上取得 0.9710 AP（+12.02%），且推理延迟低、鲁棒性优秀"
-relevance: "提供目前首个百万级通用 AI 视频检测公开基准 GenVideo（脱离人脸 Deepfake 局限，覆盖全场景），并提出基于 Mamba 的时空细粒度取证插件，直接契合团队视频伪造检测与泛化评测课题"
-primary_chapter: "第 3 节（GenVideo 数据集构建与组织）、第 4 节（DeMamba 插件架构与连续扫描机制）"
-secondary_chapters: "第 5 节（跨生成器泛化与退化视频实验评估）"
-evidence_scope: "全文 11 页正文及附录（含代码开源地址与实验消融细节）"
+study_area: AI 生成视频检测（AI-Generated Video Detection / AIGC 视频伪造检测与取证）
+data_source: GenVideo 数据集（训练集 2,294,594 片段，测试集 19,588 片段；涵盖主流扩散/自回归等 10+ 类生成模型与 Youku-mPLUG、Kinetics-400、MSR-VTT 真实视频）
+methodology: 构建百万级 AIGC 视频检测基准 GenVideo 及两项评测协议（跨生成器泛化、质量退化分类）；提出基于 3D 连续扫描机制的状态空间模型即插即用插件 DeMamba（Detail Mamba）
+core_variable: 自变量：生成器机制/架构（未见域）、视频压缩与常见扰动退化类型；因变量：分类准确率（ACC）、平均精度（AP）
+key_finding: 传统人脸伪造与图像检测器难以应对通用 AIGC 视频的跨模型泛化与传播退化；DeMamba 插件通过捕捉局部时空不一致性，在 XCLIP 上取得 0.9710 AP（+12.02%），且推理延迟低、鲁棒性优秀
+relevance: 提供目前首个百万级通用 AI 视频检测公开基准 GenVideo（脱离人脸 Deepfake 局限，覆盖全场景），并提出基于 Mamba 的时空细粒度取证插件，直接契合团队视频伪造检测与泛化评测课题
+primary_chapter: 第 3 节（GenVideo 数据集构建与组织）、第 4 节（DeMamba 插件架构与连续扫描机制）
+secondary_chapters: 第 5 节（跨生成器泛化与退化视频实验评估）
+evidence_scope: 全文 11 页正文及附录（含代码开源地址与实验消融细节）
 ---
 
 ## 一句话结论
