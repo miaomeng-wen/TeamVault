@@ -49,7 +49,7 @@ title: Example Survey
 aliases: []
 tags: []
 created: 2026-08-31
-assignee:                # 认领人标识（拼音名），一篇笔记只有一个认领人
+assignee:                # 认领人标识：建议统一使用真实中文姓名（一人一标识，全库一致），一篇笔记只有一个认领人
 reading_status: unread   # unread | reading | finished | excluded
 screening_status: candidate # included | candidate | excluded
 source_id: doi:10.1234/survey

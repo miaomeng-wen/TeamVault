@@ -1,21 +1,22 @@
 ---
 title: "A Contemporary Survey on Deepfake Detection: Datasets, Algorithms, and Challenges"
 aliases: []
-tags: [survey, deepfake]
+tags:
+  - survey
+  - deepfake
 created: 2026-08-31
-assignee:                # 待认领：认领时填小写拼音名并改为 reading
-reading_status: unread   # unread | reading | finished | excluded
-screening_status: candidate # included | candidate | excluded
+assignee: 文宇豪
+reading_status: unread
+screening_status: candidate
 source_id: doi:10.3390/electronics13030585
-source_type: article     # article | conference | book | chapter | report | dataset | web | thesis | other
+source_type: article
 doi: 10.3390/electronics13030585
 source_url: https://www.mdpi.com/2079-9292/13/3/585
-pdf_url:                 # 团队文件库建立后上传 PDF 并回填稳定链接；开放获取，PDF 可自由下载
+pdf_url:
 authors: Gong; Li
 year: 2024
 source: Electronics（MDPI AG），Vol. 13, Issue 3, Article 585
-theme: 01_综述论文        # 归档主题（01_综述论文 … 05_评价协议与可复现性 之一）
-# —— 内容提炼（未读到写"未核验"，禁止补造）——
+theme: 01_综述论文
 study_area: 未核验
 data_source: 未核验
 methodology: 未核验
