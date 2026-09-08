@@ -3,6 +3,8 @@
 .obsidian/workspace-mobile.json
 .obsidian/cache/
 .obsidian/plugins/*/data.json
+!.obsidian/plugins/metadata-menu/data.json
+
 
 # 密钥与本机配置（从 config/.env.example 复制填写，永不入库）
 config/.env

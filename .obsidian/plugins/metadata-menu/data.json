@@ -1,0 +1,86 @@
+{
+  "presetFields": [
+    {
+      "name": "reading_status",
+      "id": "fld_reading_status",
+      "type": "Select",
+      "options": {
+        "sourceType": "ValuesList",
+        "valuesList": {
+          "1": "unread",
+          "2": "reading",
+          "3": "finished"
+        }
+      },
+      "path": ""
+    },
+    {
+      "name": "screening_status",
+      "id": "fld_screening_status",
+      "type": "Select",
+      "options": {
+        "sourceType": "ValuesList",
+        "valuesList": {
+          "1": "candidate",
+          "2": "included",
+          "3": "excluded"
+        }
+      },
+      "path": ""
+    },
+    {
+      "name": "source_type",
+      "id": "fld_source_type",
+      "type": "Select",
+      "options": {
+        "sourceType": "ValuesList",
+        "valuesList": {
+          "1": "article",
+          "2": "conference",
+          "3": "book",
+          "4": "chapter",
+          "5": "report",
+          "6": "dataset",
+          "7": "web",
+          "8": "thesis",
+          "9": "other"
+        }
+      },
+      "path": ""
+    },
+    {
+      "name": "theme",
+      "id": "fld_theme",
+      "type": "Select",
+      "options": {
+        "sourceType": "ValuesList",
+        "valuesList": {
+          "1": "01_综述论文",
+          "2": "02_数据集与基准",
+          "3": "03_检测方法",
+          "4": "04_泛化与鲁棒性",
+          "5": "05_评价协议与可复现性"
+        }
+      },
+      "path": ""
+    }
+  ],
+  "fileClassQueries": [],
+  "displayFieldsInContextMenu": true,
+  "globallyIgnoredFields": [],
+  "classFilesPath": null,
+  "isAutosuggestEnabled": true,
+  "fileClassAlias": "fileClass",
+  "settingsVersion": 1,
+  "firstDayOfWeek": 1,
+  "enableLinks": true,
+  "enableTabHeader": true,
+  "enableEditor": true,
+  "enableBacklinks": true,
+  "enableStarred": true,
+  "enableFileExplorer": true,
+  "enableSearch": true,
+  "enableProperties": true,
+  "tableViewMaxRecords": 20,
+  "frontmatterListDisplay": "asArray"
+}
