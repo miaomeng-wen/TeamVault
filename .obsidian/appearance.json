@@ -1,5 +1,6 @@
 {
   "monospaceFontFamily": "Arial",
   "textFontFamily": "Arial",
-  "interfaceFontFamily": "Arial"
+  "interfaceFontFamily": "Arial",
+  "baseFontSizeAction": true
 }
