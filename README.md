@@ -1,6 +1,6 @@
 # TeamVault · 团队科研知识库
 
-本 vault 属于一个研究 deepfake 图像与视频检测与筛选的科研团队（2 名指导教师 + 4 名学生），目标是沉淀一套可复用、可审计、可迁移的团队知识库。Obsidian + Git + 团队文件库 + 智能体流水线构成。来源管理规范、协作规则与智能体写入边界见 [AGENTS.md](AGENTS.md)；新成员上手步骤见 [CONTRIBUTING.md](CONTRIBUTING.md)；整体设计思路见 `00_Home/建设方案.md`，vault 内入口页为 `00_Home/Home.md`。
+本 vault 属于一个研究 deepfake 图像与视频检测与筛选的科研团队（3 名指导教师 + 8 名学生），目标是沉淀一套可复用、可审计、可迁移的团队知识库。Obsidian + Git + 团队文件库 + 智能体流水线构成。来源管理规范、协作规则与智能体写入边界见 [AGENTS.md](AGENTS.md)；新成员上手步骤见 [CONTRIBUTING.md](CONTRIBUTING.md)；整体设计思路见 `00_Home/建设方案.md`，vault 内入口页为 `00_Home/Home.md`。
 
 ## 目录速览
 
