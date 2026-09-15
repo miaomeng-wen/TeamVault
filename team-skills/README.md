@@ -16,11 +16,25 @@
 
 前置：已完成 `CONTRIBUTING.md` 第二节（vault 已 clone，团队文件库链接可访问）。
 
-PowerShell：
+### 技能目录对照
+
+技能必须复制到**你所用 agent 客户端**的用户级技能目录，各客户端路径不同：
+
+| agent 客户端 | 用户级技能目录 |
+| --- | --- |
+| WorkBuddy AI | `%USERPROFILE%\.workbuddy-ai\skills` |
+| Codex | `%USERPROFILE%\.codex\skills` |
+
+不确定就用客户端的技能/插件设置页确认目录位置；换客户端后需重新复制一次。
+
+### 复制命令（PowerShell）
+
+先把 `$dst` 改成本机实际技能目录，再执行：
 
 ```powershell
 $src = "E:\TeamVault\team-skills"
-$dst = "$env:USERPROFILE\.codex\skills"
+$dst = "$env:USERPROFILE\.workbuddy-ai\skills"   # 按上表改为你的客户端目录
+New-Item -ItemType Directory -Force -Path $dst | Out-Null
 Copy-Item "$src\source-intake" $dst -Recurse -Force
 Copy-Item "$src\vault-qa" $dst -Recurse -Force
 Copy-Item "$src\team-digest" $dst -Recurse -Force

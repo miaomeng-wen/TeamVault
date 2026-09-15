@@ -12,7 +12,7 @@
 ### 1. 克隆仓库并用 Obsidian 打开
 
 ```bat
-git clone <仓库地址> E:\TeamVault
+git clone <[仓库地址](https://github.com/miaomeng-wen/TeamVault)> E:\TeamVault
 ```
 
 然后在 Obsidian 中：`打开其他仓库 → 打开本地文件夹作为仓库 → 选择 E:\TeamVault`。
@@ -41,7 +41,7 @@ Obsidian 设置 → 第三方插件 → 浏览：
 
 ### 4. 安装团队智能体技能
 
-按 `team-skills/README.md` 把 `source-intake`、`vault-qa`、`team-digest` 安装到本机技能目录，然后重新打开 agent 会话。
+按 `team-skills/README.md` 的"技能目录对照"，把 `source-intake`、`vault-qa`、`team-digest` 复制到**你所用 agent 客户端**的用户级技能目录，然后重新打开 agent 会话。
 
 ## 三、日常使用
 
@@ -98,5 +98,5 @@ git commit --amend --reset-author --no-edit
 - **看板不刷新**：确认 Dataview 插件已启用；`Ctrl+P → Reload app without saving`。
 - **PDF 链接打不开**：先确认已登录团队文件库，再请管理员检查分享范围；不要用成员个人电脑的本地路径代替。
 - **来源重复**：不要新建第二篇，按 `source_id` 找到原笔记并补全；无法判断时运行 `vault-qa`。
-- **智能体没反应**：确认 `team-skills` 已安装到本机 `.codex/skills` 目录并重新打开会话。
+- **智能体没反应**：确认 `team-skills` 已复制到所用 agent 客户端的技能目录（对照表见 `team-skills/README.md`）并重新打开会话。
 - **我不小心改坏了 04_Tables**：`git checkout -- 04_Tables/` 恢复即可。
