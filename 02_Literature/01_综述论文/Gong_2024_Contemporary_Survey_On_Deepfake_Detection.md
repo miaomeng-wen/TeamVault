@@ -5,7 +5,7 @@ tags:
   - survey
   - deepfake
 created: 2026-08-31
-assignee: 文宇豪
+assignee:
 reading_status: unread
 screening_status: candidate
 source_id: doi:10.3390/electronics13030585
